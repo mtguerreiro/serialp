@@ -58,7 +58,7 @@ def u8_to_u32(d, msb=False):
     """
     if msb is True:
         d = d[::-1]
-    return (d[0] << 24) + (d[1] << 16) + (d[2] << 8) + d[3]
+    return (d[3] << 24) + (d[2] << 16) + (d[1] << 8) + d[0]
 
 
 def u8_to_u16(d):
@@ -93,9 +93,8 @@ def u8_to_u16(d):
     """
     if msb is True:
         d = d[::-1]
-    data = (d[1] << 8) + d[0]
     
-    return (d[0] << 8) + d[1]
+    return (d[1] << 8) + d[0]
 
 
 

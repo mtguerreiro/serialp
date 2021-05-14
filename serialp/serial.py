@@ -49,7 +49,7 @@ class Serial:
         cmd = self.serial.read(4)
         if len(cmd) != 4:
             return []
-        
+
         cmd = serialp.conversions.u8_to_u32(cmd, msb=False)
         if cmd != command:
             return []
@@ -68,7 +68,6 @@ class Serial:
         
         # Reads stop byte
         st = self.serial.read(1)[0]
-        print(st)
         if st != PROTOCOL_END:
             return []
 
