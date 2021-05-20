@@ -41,7 +41,7 @@ def u8_to_u32(d, msb=False):
         
     Parameters
     ----------
-    d : list ou str
+    d : list or str
         List or binary string with the values to be converted. In either
         case, the list or string must contain at least 4 elements or
         characters; respectively.
@@ -52,16 +52,27 @@ def u8_to_u32(d, msb=False):
 
     Returns
     -------
-    int
+    int, list
         Converted value.
 
     """
     if msb is True:
         d = d[::-1]
-    return (d[3] << 24) + (d[2] << 16) + (d[1] << 8) + d[0]
+
+    n = int( len(d) / 4 )
+
+    c = [0] * n
+    for i in range(n):
+        j = 4 * i
+        c[i] = (d[j + 3] << 24) + (d[j + 2] << 16) + (d[j + 1] << 8) + d[0]
+
+    if len(c) == 1:
+        c = c[0]
+        
+    return c
 
 
-def u8_to_u16(d):
+def u8_to_u16(d, msb=False):
     """Converts a list of bytes or a string to a 16-bit value.
 
     Example: 
@@ -76,9 +87,9 @@ def u8_to_u16(d):
 
     Parameters
     ----------
-    d : list ou str
+    d : list or str
         List or binary string with the values to be converted. In either
-        case, the list or string must contain at least 4 elements or
+        case, the list or string must contain at least 2 elements or
         characters; respectively.
 
     msb : bool
@@ -93,8 +104,17 @@ def u8_to_u16(d):
     """
     if msb is True:
         d = d[::-1]
+
+    n = int( len(d) / 2 )
+
+    c = [0] * n
+    for i in range(n):
+        c[i] = (d[2 * i + 1] << 8) + d[2 * i]
+
+    if len(c) == 1:
+        c = c[0]
     
-    return (d[1] << 8) + d[0]
+    return c
 
 
 
@@ -113,22 +133,29 @@ def u32_to_u8(d, msb=False):
     Returns
     -------
     list
-        List with the decimals.
+        List with decimals.
         
     """
-    data = [(d >> (8 * k)) & 0xFF for k in range(4)]
-    if msb is True:
-        data = data[::-1]
+    if type(d) is int:
+        d = [d]
+    
+    if msb is False:
+        data = [[(i >> (8 * k)) & 0xFF for k in range(4)] for i in d]
+    else:
+        data = [[(i >> (8 * (3-k))) & 0xFF for k in range(4)] for i in d]
+
+    if len(data) == 1:
+        data = data[0]
     
     return data
 
 
 def u16_to_u8(d, msb=False):
-    """Converts a 16-bit value to a list of decimals.
+    """Converts a 16-bit value to a list with 2 bytes.
 
     Parameters
     ----------
-    d : int
+    d : int, list
         16-bit value.
         
     msb : bool
@@ -138,11 +165,18 @@ def u16_to_u8(d, msb=False):
     Returns
     -------
     list
-        List with the decimals.
+        List with decimals.
         
     """
-    data = [(d >> (8 * k)) & 0xFF for k in range(2)]
-    if msb is True:
-        data = data[::-1]
+    if type(d) is int:
+        d = [d]
+    
+    if msb is False:
+        data = [[(i >> (8 * k)) & 0xFF for k in range(2)] for i in d]
+    else:
+        data = [[(i >> (8 * (1-k))) & 0xFF for k in range(2)] for i in d]
+
+    if len(data) == 1:
+        data = data[0]
     
     return data
