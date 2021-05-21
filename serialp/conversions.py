@@ -53,18 +53,19 @@ def u8_to_u32(d, msb=False):
     Returns
     -------
     int, list
-        Converted value.
+        Converted value or values.
 
     """
+    if type(d[0]) is int:
+        d = [d]
+
     if msb is True:
-        d = d[::-1]
+        d = [di[::-1] for di in d]
 
-    n = int( len(d) / 4 )
-
+    n = len(d)
     c = [0] * n
-    for i in range(n):
-        j = 4 * i
-        c[i] = (d[j + 3] << 24) + (d[j + 2] << 16) + (d[j + 1] << 8) + d[0]
+    for i, di in enumerate(d):
+        c[i] = (di[3] << 24) + (di[2] << 16) + (di[1] << 8) + di[0]
 
     if len(c) == 1:
         c = c[0]
@@ -98,21 +99,26 @@ def u8_to_u16(d, msb=False):
     
     Returns
     -------
-    int
-        Converted value.
+    int, list
+        Converted value or values.
 
     """
+    if type(d[0]) is int:
+        d = [d]
+
     if msb is True:
-        d = d[::-1]
+        d = [di[::-1] for di in d]
 
-    n = int( len(d) / 2 )
-
+    n = len(d)
     c = [0] * n
-    for i in range(n):
-        c[i] = (d[2 * i + 1] << 8) + d[2 * i]
+    for i, di in enumerate(d):
+        c[i] = (di[1] << 8) + di[0]
 
     if len(c) == 1:
         c = c[0]
+        
+    return c
+
     
     return c
 
