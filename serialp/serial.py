@@ -14,14 +14,36 @@ class Serial:
     - Number of bytes that will be sent - 4 bytes
     - Data - N bytes
     - End - 1 bytes
-        
+
+    Parameters
+    ----------
+    com : str
+        COM port.
+
+    baud : int
+        Baudrate used for communication. By default, it is 9600 bps.
+
+    timeout : int, float
+        Communication time-out, in seconds. By default, it is 0.2 s.
+    
     """
     def __init__(self, com, baud=9600, timeout=0.2):
         
         self.serial = serial.Serial(com, baud, timeout=timeout)
 
     
-    def send(self, command, data):
+    def send(self, command, data=None):
+        """Sends a command and data (optional) through the serial protocol.
+
+        Parameters
+        ----------
+        command : int
+            Command to send.
+
+        data : list or :class:`NoneType`
+            Data, as a list of bytes. If `None`, no data is sent.
+
+        """
         data_packet = self.packet(command, data)
         self.serial.write(data_packet)
 
@@ -37,17 +59,24 @@ class Serial:
         Returns
         -------
         data : list
-            The received data.
+            The received data. If any error occurs during transmission (wrong
+            command, data-timed out, etc), an empty list is returned.
 
         """
         # Reads start byte
-        st = self.serial.read(1)[0]
+        st = self.serial.read(1)
+        if len(st) != 1:
+            print('Start byte timed-out')
+            return []
+
+        st = st[0]
         if st != PROTOCOL_ST:
             return []
 
         # Reads command byte - should be the same as command
         cmd = self.serial.read(4)
         if len(cmd) != 4:
+            print('Command timed-out')
             return []
 
         cmd = serialp.conversions.u8_to_u32(cmd, msb=False)
@@ -57,6 +86,7 @@ class Serial:
         # Reads the size of the incoming data
         size = self.serial.read(4)
         if len(size) != 4:
+            print('Data size timed-out')
             return []
         
         size = serialp.conversions.u8_to_u32(size, msb=False)
@@ -64,14 +94,18 @@ class Serial:
         # Reads the data
         data = self.serial.read(size)
         if len(data) != size:
+            print('Data receive timed-out')
             return []
         
         # Reads stop byte
-        st = self.serial.read(1)[0]
-        if st != PROTOCOL_END:
+        st = self.serial.read(1)
+        if len(st) != 1:
+            print('Stop byte timed-out')
             return []
 
-        #If everything went well, return the data
+        st = st[0]
+        if st != PROTOCOL_END:
+            return []
         
         return data
     
@@ -86,6 +120,11 @@ class Serial:
 
         data : list or :class:`NoneType`
             Data. Choose `None` if no data is to be sent.
+
+        Returns
+        -------
+        list
+            A list of bytes containing the formatted data.
             
         """
         data_packet = []
