@@ -71,6 +71,7 @@ class Serial:
 
         st = st[0]
         if st != PROTOCOL_ST:
+            print('Received wrong start byte')
             return []
 
         # Reads command byte - should be the same as command
@@ -79,8 +80,11 @@ class Serial:
             print('Command timed-out')
             return []
 
-        cmd = serialp.conversions.u8_to_u32(cmd, msb=False)
-        if cmd != command:
+        cmd1 = serialp.conversions.u8_to_u32(cmd, msb=False)
+        if cmd1 != command:
+            print('Received wrong command')
+            print('Received: {:}. Expected: {:}'.format(cmd1, command))
+            print('Bytes: {:}'.format(cmd))
             return []
 
         # Reads the size of the incoming data
@@ -105,6 +109,7 @@ class Serial:
 
         st = st[0]
         if st != PROTOCOL_END:
+            print('Received wrong stop byte')
             return []
         
         return data
