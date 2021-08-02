@@ -84,7 +84,7 @@ class Serial:
         if cmd1 != command:
             print('Received wrong command')
             print('Received: {:}. Expected: {:}'.format(cmd1, command))
-            print('Bytes: {:}'.format(cmd))
+            print('Bytes: {:}'.format(list(cmd)))
             return []
 
         # Reads the size of the incoming data
